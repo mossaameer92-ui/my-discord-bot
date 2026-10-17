@@ -19,14 +19,30 @@ CHARACTERS = string.ascii_lowercase + string.digits
 @bot.event
 async def on_ready():
     print(f"✅ تم تسجيل الدخول باسم البوت: {bot.user.name}")
+    
+    # فحص القناة وإرسال رسالة تجريبية عند التشغيل
+    channel = bot.get_channel(CHANNEL_ID)
+    if channel:
+        print(f"✅ تم العثور على القناة: {channel.name}")
+        try:
+            await channel.send("🤖 **البوت يعمل الآن بنجاح وبدأ عملية الفحص التلقائي!**")
+        except Exception as e:
+            print(f"❌ البوت وجد القناة ولكن لا يمتلك صلاحية إرسال الرسائل: {e}")
+    else:
+        print("❌ لم يتم العثور على القناة! تأكد من صحة CHANNEL_ID أو وجود البوت داخل السيرفر.")
+
     print("🚀 جاري بدء مهمة الفحص الدوري...")
     check_usernames.start()
 
-@tasks.loop(seconds=5)  # فحص دوري كل 5 ثوانٍ
+# أمر تجريبي لاختبار استجابة البوت
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong! 🏓 البوت متصل ويستجيب بنجاح.")
+
+@tasks.loop(seconds=10)  # فحص دوري كل 10 ثوانٍ لتجنب حظر الطلبات (Rate Limit)
 async def check_usernames():
     channel = bot.get_channel(CHANNEL_ID)
     if not channel:
-        print("⚠️ تعذر العثور على القناة، تأكد من وجود البوت فيها وصحة الصلاحيات.")
         return
 
     # توليد وفحص يوزر ثلاثي/رباعي
@@ -37,7 +53,6 @@ async def check_usernames():
         
         if is_available:
             await channel.send(f"🎉 **يوزر متاح جديد!**\nالاسم: `{username}`")
-            # توقف مؤقت لتجنب الإغراق (Spam)
             break
 
 async def check_discord_username(username):
@@ -47,11 +62,15 @@ async def check_discord_username(username):
         "Authorization": os.environ.get("DISCORD_TOKEN"),
         "Content-Type": "application/json"
     }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, json={"username": username}, headers=headers) as resp:
-            if resp.status == 200:
-                data = await resp.json()
-                return data.get("taken") == False
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json={"username": username}, headers=headers) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    # إذا كان taken يساوي False فهذا يعني أن اليوزر متاح
+                    return data.get("taken") == False
+    except Exception as e:
+        print(f"خطأ أثناء الفحص: {e}")
     return False
 
 # تشغيل البوت باستخدام متغير البيئة
