@@ -44,5 +44,6 @@ async def check_discord_username(username):
     # دالة فحص الآبي آي لتوفر الاسم
     return False
 
-# توكن البوت الخاص بك
-bot.run("MTU2MDgzMjQzNjExODc1MzQyMQ.Gs6yv5.EhCBRpafAi1QEJs2mK6yf8KL7-pJmLgDijLZVU")
+import os
+# تشغيل البوت باستخدام متغير البيئة لكي لا يتم حظره أو تسريبه
+bot.run(os.environ.get("DISCORD_TOKEN"))
