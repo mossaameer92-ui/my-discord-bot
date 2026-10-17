@@ -45,4 +45,4 @@ async def check_discord_username(username):
     return False
 
 # توكن البوت الخاص بك
-bot.run("MTU2MDgzMjQzNjExODc1MzQyMQ.Gy7e5O.GRArKOsvw2PRIFEpAU7HUxTBXUAEPYe3aHDETY")
+bot.run("MTU2MDgzMjQzNjExODc1MzQyMQ.Gs6yv5.EhCBRpafAi1QEJs2mK6yf8KL7-pJmLgDijLZVU")
